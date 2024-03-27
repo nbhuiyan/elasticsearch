@@ -23,8 +23,8 @@ import java.util.regex.Pattern;
 
 public class Jdk implements Buildable, Iterable<File> {
 
-    private static final List<String> ALLOWED_ARCHITECTURES = List.of("aarch64", "x64");
-    private static final List<String> ALLOWED_VENDORS = List.of("adoptium", "openjdk", "zulu");
+    private static final List<String> ALLOWED_ARCHITECTURES = List.of("aarch64", "x64", "ppc64le");
+    private static final List<String> ALLOWED_VENDORS = List.of("adoptium", "openjdk", "zulu", "ibm");
     private static final List<String> ALLOWED_PLATFORMS = List.of("darwin", "linux", "windows", "mac");
     private static final Pattern VERSION_PATTERN = Pattern.compile(
         "(\\d+)(\\.\\d+\\.\\d+(?:\\.\\d+)?)?\\+(\\d+(?:\\.\\d+)?)(@([a-f0-9]{32}))?"

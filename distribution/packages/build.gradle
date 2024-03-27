@@ -101,6 +101,8 @@ def commonPackageConfig(String type, String architecture) {
     if (type == 'deb') {
       if (architecture == 'x64') {
         arch('amd64')
+      } else if (architecture == 'ppc64le') {
+        arch('ppc64le')
       } else {
         assert architecture == 'aarch64': architecture
         arch('arm64')
@@ -109,13 +111,15 @@ def commonPackageConfig(String type, String architecture) {
       assert type == 'rpm': type
       if (architecture == 'x64') {
         arch('X86_64')
+      } else if (architecture == 'ppc64le') {
+        arch('ppc64le')
       } else {
         assert architecture == 'aarch64': architecture
         arch('aarch64')
       }
     }
     // Follow elasticsearch's file naming convention
-    String prefix = "${architecture == 'aarch64' ? 'aarch64-' : ''}${type}"
+    String prefix = "${architecture == 'aarch64' ? 'aarch64-' : (architecture == 'ppc64le' ? 'ppc64le-' : '')}${type}"
     destinationDirectory = file("${prefix}/build/distributions")
     archiveFileName.value(project.provider({ "${packageName}-${project.version}-${archString}.${type}" }))
     String packagingFiles = "build/packaging/${type}"
@@ -334,6 +338,14 @@ tasks.register('buildDeb', Deb) {
   configure(commonDebConfig('x64'))
 }
 
+tasks.register('buildPpc64leDeb', Deb) {
+  configure(commonDebConfig('ppc64le'))
+}
+
+//tasks.register('buildPpc64leOssDeb', Deb) {
+//  configure(commonDebConfig('ppc64le'))
+//}
+
 Closure commonRpmConfig(String architecture) {
   return {
     configure(commonPackageConfig('rpm', architecture))
@@ -358,6 +370,14 @@ Closure commonRpmConfig(String architecture) {
     addParentDirs false
   }
 }
+
+tasks.register('buildPpc64leRpm', Rpm) {
+  configure(commonRpmConfig('ppc64le'))
+}
+
+//tasks.register('buildPpc64leOssRpm', Rpm) {
+//  configure(commonRpmConfig(true, true, 'ppc64le'))
+//}
 
 tasks.register('buildAarch64Rpm', Rpm) {
   configure(commonRpmConfig('aarch64'))

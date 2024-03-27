@@ -34,6 +34,7 @@ public class JdkDownloadPlugin implements Plugin<Project> {
     public static final String VENDOR_ADOPTIUM = "adoptium";
     public static final String VENDOR_OPENJDK = "openjdk";
     public static final String VENDOR_ZULU = "zulu";
+    public static final String VENDOR_IBM = "ibm";
 
     private static final String REPO_NAME_PREFIX = "jdk_repo_";
     private static final String EXTENSION_NAME = "jdks";
@@ -97,7 +98,10 @@ public class JdkDownloadPlugin implements Plugin<Project> {
         String repoUrl;
         String artifactPattern;
 
-        if (jdk.getVendor().equals(VENDOR_ADOPTIUM)) {
+        if (jdk.getArchitecture().equals("ppc64le")) {
+            repoUrl = "https://github.com/ibmruntimes/semeru21-binaries/releases/download";
+            artifactPattern = "jdk-21.0.2%2B13_openj9-0.43.0/ibm-semeru-open-jdk_ppc64le_linux_21.0.2_13_openj9-0.43.0.tar.gz";
+        } else if (jdk.getVendor().equals(VENDOR_ADOPTIUM)) {
             repoUrl = "https://api.adoptium.net/v3/binary/version/";
             if (jdk.getMajor().equals("8")) {
                 // legacy pattern for JDK 8

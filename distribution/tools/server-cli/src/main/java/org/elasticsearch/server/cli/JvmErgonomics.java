@@ -88,8 +88,15 @@ final class JvmErgonomics {
      *                               and {@code optionName} is not in the final JVM options.
      */
     private static boolean usingG1GcWithoutCommandLineOriginOption(Map<String, JvmOption> finalJvmOptions, String optionName) {
-        return getRequiredOption(finalJvmOptions, "UseG1GC").getMandatoryValue().equals("true")
-            && getRequiredOption(finalJvmOptions, optionName).isCommandLineOrigin() == false;
+        //return getRequiredOption(finalJvmOptions, "UseG1GC").getMandatoryValue().equals("true")
+        //    && getRequiredOption(finalJvmOptions, optionName).isCommandLineOrigin() == false;
+        JvmOption g1GC = finalJvmOptions.get("UseG1GC");
+        JvmOption getg1GCOption = finalJvmOptions.get(optionName);
+           if (g1GC == null || getg1GCOption == null) {
+                System.out.println("@@@@@@@@@ g1gc or g1gcoption is null @@@@@@@@@@@");
+            }
+        return (g1GC != null && g1GC.getMandatoryValue().equals("true") 
+          && getg1GCOption != null && getg1GCOption.isCommandLineOrigin() == false);
     }
 
     private static JvmOption getRequiredOption(final Map<String, JvmOption> finalJvmOptions, final String key) {

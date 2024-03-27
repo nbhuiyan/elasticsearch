@@ -97,6 +97,13 @@ distribution_archives {
     }
   }
 
+  linuxPpc64leTar {
+    archiveClassifier = 'linux-ppc64le'
+    content {
+      archiveFiles(modulesFiles('linux-ppc64le'),'tar', 'linux', 'ppc64le', false)
+    }
+  }
+
   linuxTar {
     archiveClassifier = 'linux-x86_64'
     content {

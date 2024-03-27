@@ -58,6 +58,7 @@ RUN set -eux ; \\
     case "\$(arch)" in \\
         aarch64) tini_bin='tini-arm64' ;; \\
         x86_64)  tini_bin='tini-amd64' ;; \\
+        ppc64le) tini_bin='tini-ppc64le' ;; \\
         *) echo >&2 ; echo >&2 "Unsupported architecture \$(arch)" ; echo >&2 ; exit 1 ;; \\
     esac ; \\
     curl --retry 10 -S -L -O https://github.com/krallin/tini/releases/download/v0.19.0/\${tini_bin} ; \\

@@ -91,14 +91,17 @@ configurations {
 
   log4jConfig
   tini
+  ppc64leDockerSource
   allPlugins
   filebeat_aarch64
   filebeat_x86_64
+  filebeat_ppc64le
   metricbeat_aarch64
   metricbeat_x86_64
+  metricbeat_ppc64le
 }
 
-String tiniArch = Architecture.current() == Architecture.AARCH64 ? 'arm64' : 'amd64'
+String tiniArch = Architecture.current() == Architecture.AARCH64 ? 'arm64' : (Architecture.current() == Architecture.PPC64LE ? 'ppc64le' : 'amd64')
 
 dependencies {
   aarch64DockerSource project(":distribution:archives:linux-aarch64-tar")
@@ -110,8 +113,11 @@ dependencies {
   allPlugins project(path: ':plugins', configuration: 'allPlugins')
   filebeat_aarch64 "beats:filebeat:${VersionProperties.elasticsearch}:linux-arm64@tar.gz"
   filebeat_x86_64 "beats:filebeat:${VersionProperties.elasticsearch}:linux-x86_64@tar.gz"
+  filebeat_ppc64le "beats:filebeat:${VersionProperties.elasticsearch}:linux-ppc64le@tar.gz"
   metricbeat_aarch64 "beats:metricbeat:${VersionProperties.elasticsearch}:linux-arm64@tar.gz"
   metricbeat_x86_64 "beats:metricbeat:${VersionProperties.elasticsearch}:linux-x86_64@tar.gz"
+  metricbeat_ppc64le "beats:metricbeat:${VersionProperties.elasticsearch}:linux-ppc64le@tar.gz"
+  ppc64leDockerSource project(path: ":distribution:archives:linux-ppc64le-tar", configuration: 'default')
 }
 
 ext.expansions = { Architecture architecture, DockerBase base ->
@@ -156,7 +162,7 @@ private static String toCamel(String input) {
 
 private static String taskName(String prefix, Architecture architecture, DockerBase base, String suffix) {
   return prefix +
-    (architecture == Architecture.AARCH64 ? 'Aarch64' : '') +
+    (architecture == Architecture.AARCH64 ? 'Aarch64' : (architecture == Architecture.PPC64LE ? 'Ppc64le' : '')) +
     (base == DockerBase.DEFAULT ? "" : toCamel(base.name())) +
     suffix
 }
@@ -215,7 +221,7 @@ tasks.register("copyNodeKeyMaterial", Sync) {
 
 elasticsearch_distributions {
   Architecture.values().each { eachArchitecture ->
-    "docker_${eachArchitecture == Architecture.AARCH64 ? '_aarch64' : ''}" {
+    "docker_${eachArchitecture == Architecture.AARCH64 ? '_aarch64' : (architecture == Architecture.PPC64LE ? 'ppc64le-' : '') }" {
       architecture = eachArchitecture
       type = InternalElasticsearchDistributionTypes.DOCKER
       version = VersionProperties.getElasticsearch()
@@ -271,7 +277,7 @@ tasks.named("composeUp").configure {
 
 void addBuildDockerContextTask(Architecture architecture, DockerBase base) {
   String configDirectory = base == DockerBase.IRON_BANK ? 'scripts' : 'config'
-  String arch = architecture == Architecture.AARCH64 ? '-aarch64' : ''
+  String arch = architecture == Architecture.AARCH64 ? '-aarch64' : (architecture == Architecture.PPC64LE ? '-ppc64le' : '')
 
   final TaskProvider<Tar> buildDockerContextTask =
     tasks.register(taskName('build', architecture, base, 'DockerContext'), Tar) {
@@ -507,7 +513,7 @@ subprojects { Project subProject ->
   if (subProject.name.endsWith('-export')) {
     apply plugin: 'distribution'
 
-    final Architecture architecture = subProject.name.contains('aarch64-') ? Architecture.AARCH64 : Architecture.X64
+    final Architecture architecture = subProject.name.contains('aarch64-') ? Architecture.AARCH64 : (subProject.name.contains('ppc64le-') ? Architecture.PPC64LE : Architecture.X64)
     DockerBase base = DockerBase.DEFAULT
     if (subProject.name.contains('ubi-')) {
       base = DockerBase.UBI
@@ -519,7 +525,7 @@ subprojects { Project subProject ->
       base = DockerBase.CLOUD
     }
 
-    final String arch = architecture == Architecture.AARCH64 ? '-aarch64' : ''
+    final String arch = architecture == Architecture.AARCH64 ? '-aarch64' : (architecture == Architecture.PPC64LE ? '-ppc64le' : '')
     final String extension = base == DockerBase.UBI ? 'ubi.tar' :
       (base == DockerBase.IRON_BANK ? 'ironbank.tar' :
         (base == DockerBase.CLOUD ? 'cloud.tar' :

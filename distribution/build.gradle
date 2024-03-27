@@ -245,7 +245,7 @@ configure(subprojects.findAll { ['archives', 'packages'].contains(it.name) }) {
   // Setup all required JDKs
   project.jdks {
     ['darwin', 'windows', 'linux'].each { platform ->
-      (platform == 'linux' || platform == 'darwin' ? ['x64', 'aarch64'] : ['x64']).each { architecture ->
+      (platform == 'linux' || platform == 'darwin' ? ['x64', 'aarch64', 'ppc64le'] : ['x64']).each { architecture ->
         "bundled_${platform}_${architecture}" {
           it.platform = platform
           it.version = VersionProperties.bundledJdkVersion
@@ -343,7 +343,7 @@ configure(subprojects.findAll { ['archives', 'packages'].contains(it.name) }) {
             it.mode = 0644
           }
         }
-        List excludePlatforms = ['linux-x86_64', 'linux-aarch64', 'windows-x86_64', 'darwin-x86_64', 'darwin-aarch64']
+        List excludePlatforms = ['linux-x86_64', 'linux-aarch64', 'windows-x86_64', 'darwin-x86_64', 'darwin-aarch64', 'linux-ppc64le']
         if (platform != null) {
           excludePlatforms.remove(excludePlatforms.indexOf(platform))
         } else {
